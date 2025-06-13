@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vetri Market Invoice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Raleway', sans-serif;
+      font-size: x-large;
+    }
+    body {
+      margin: 0;
+      background: #fff;
+      transition: background 0.3s, color 0.3s;
+    }
+    a{
+      text-decoration: none;
+      color: black;
+    }
+    body.dark-mode {
+      background: #1e1e1e;
+      color: #f0f0f0;
+    }
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 220px;
+      background: #d2e5ff;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    body.dark-mode .sidebar {
+      background: #333;
+    }
+    
+    .nav-item {
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #222;
+    }
+    body.dark-mode .nav-item {
+      color: #f0f0f0;
+    }
+    .content {
+      flex: 1;
+      padding: 2rem;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dark-toggle {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .customer-details input[type="text"] {
+      border: none;
+      background: transparent;
+      border-bottom: 1px dashed #ccc;
+      outline: none;
+      color: inherit;
+    }
+    .customer-details span {
+      font-weight: bold;
+    }
+    .search-bar {
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .item-table {
+      width: 100%;
+      margin-top: 1rem;
+      border-collapse: collapse;
+    }
+    .item-table th, .item-table td {
+      text-align: center;
+      padding: 1rem;
+      border: 1px solid #ddd;
+    }
+    .item-table th {
+      color: blue;
+    }
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn-add {
+      background: #ff8a4c;
+      color: #fff;
+    }
+    .btn-next {
+      background: #4f46e5;
+      color: #fff;
+      display: block;
+      margin: 2rem auto 0;
+    }
+    .btn-print {
+      background: #00b894;
+      color: #fff;
+      display: block;
+      margin: 1rem auto;
+    }
+    .btn-delete {
+      color: red;
+      cursor: pointer;
+    }
+    .btn-qty {
+      background: #e0e0e0;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+    }
+    #barcode {
+      margin-top: 1rem;
+    }
+    .totals {
+      text-align: right;
+      margin-top: 1rem;
+    }
+    .totals input {
+      width: 80px;
+      text-align: right;
+    }
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .content {
+        padding: 1rem;
+      }
+    }
+    @media print {
+      .btn, .sidebar, .search-bar, #barcode, .dark-toggle {
+        display: none !important;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      .content {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <a href="indexnew.html"><img src="logo.jpg" alt="Vetri Market Logo" style=" width: 75px;
+        height: 75px;
+        border-radius: 50%;
+        margin-bottom: 1rem;"></a>
+    <div class="nav-item"><a href="product.html"><img src="products.png"> Products</a></div>
+    </div>
+    <div class="content">
+      <div class="header">
+        <h2>Invoice ID: <span id="invoiceId"></span></h2>
+        <div>
+          <button class="btn btn-add" onclick="addItem()"><a href="product.html">+ Add item <img src="Add to cart.png"></a></button>
+          <button class="dark-toggle" onclick="toggleDarkMode()">Toggle Dark Mode</button>
+        </div>
+      </div>
+      <div class="customer-details">
+        <p><span>CUSTOMER NAME:</span> <input id="custName" type="text" value=""><img src="edit.png"></p>
+        <p><span>CONTACT NO:</span> <input id="custContact" type="text" value=""><img src="edit.png"></p>
+        <p><span>ADDRESS:</span> <input id="custAddress" type="text" value="Chennai"><img src="edit.png"></p>
+        <p><span>DATE:</span> <span id="invoiceDate"></span></p>
+      </div>
+      <div class="search-bar">
+        <input type="text" placeholder="Search...">
+        <i class="fas fa-microphone"><img src="mic.png"></i>
+        <i class="fas fa-barcode"><img src="bar code.png"></i>
+      </div>
+      <table class="item-table" id="itemsTable">
+        <thead>
+          <tr>
+            <th>ITEM DETAILS</th>
+            <th>QUANTITY</th>
+            <th>RATE</th>
+            <th>TAX</th>
+            <th>AMOUNT</th>
+            <th>DELETE</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <div class="totals">
+        Discount: ₹<input type="number" id="discount" value="0" oninput="updateTotal()"> &nbsp;
+        Shipping: ₹<input type="number" id="shipping" value="0" oninput="updateTotal()"> &nbsp;
+        <strong>Total: ₹<span id="totalAmount">0.00</span></strong>
+      </div>
+      <button class="btn btn-print" onclick="printInvoice()">Print Invoice <img src="draft.png"></button>
+      <button class="btn btn-next" onclick="generatePDF()">Download Invoice</button>
+    </div>
+  </div>
+  <script>
+    // Initialization
+    const invoiceId = `VM-${Date.now().toString().slice(-6)}`;
+    document.getElementById('invoiceId').innerText = invoiceId;
+    document.getElementById('invoiceDate').innerText = new Date().toLocaleDateString();
+    JsBarcode("#barcode", invoiceId, {
+      format: "CODE128",
+      lineColor: "#000",
+      width: 2,
+      height: 40,
+      displayValue: true
+    });
+
+    // Dark mode toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+    }
+
+    // Add item row
+    function addItem() {
+      const tbody = document.querySelector("#itemsTable tbody");
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td><input type="text" placeholder="Item" /></td>
+        <td>
+          <button class="btn-qty" onclick="changeQty(this, -1)">-</button>
+          <input type="number" value="1" min="1" style="width:40px; text-align:center;" onchange="calcAmount(this)" />
+          <button class="btn-qty" onclick="changeQty(this, 1)">+</button>
+        </td>
+        <td><input type="number" value="0" onchange="calcAmount(this)" /></td>
+        <td><input type="number" value="0" onchange="calcAmount(this)" /></td>
+        <td><span class="amount">0.00</span></td>
+        <td><span class="btn-delete" onclick="this.closest('tr').remove(); updateTotal();">🗑</span></td>
+      `;
+      tbody.appendChild(row);
+    }
+
+    function changeQty(btn, delta) {
+      const input = btn.parentElement.querySelector('input');
+      let val = parseInt(input.value) + delta;
+      if (val < 1) val = 1;
+      input.value = val;
+      calcAmount(input);
+    }
+
+    function calcAmount(el) {
+      const row = el.closest('tr');
+      const qty = parseFloat(row.children[1].querySelector('input').value) || 0;
+      const rate = parseFloat(row.children[2].querySelector('input').value) || 0;
+      const tax = parseFloat(row.children[3].querySelector('input').value) || 0;
+      const amount = (qty * rate) + tax;
+      row.children[4].querySelector('.amount').innerText = amount.toFixed(2);
+      updateTotal();
+    }
+
+    function updateTotal() {
+      let total = 0;
+      document.querySelectorAll('.amount').forEach(el => total += parseFloat(el.innerText));
+      const discount = parseFloat(document.getElementById('discount').value) || 0;
+      const shipping = parseFloat(document.getElementById('shipping').value) || 0;
+      total = total - discount + shipping;
+      document.getElementById('totalAmount').innerText = total.toFixed(2);
+    }
+
+    function printInvoice() {
+      window.print();
+    }
+
+    function generatePDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.text("Vetri Market Invoice", 20, 20);
+      doc.text(`Invoice ID: ${invoiceId}`, 20, 30);
+      doc.text(`Customer: ${document.getElementById('custName').value}`, 20, 40);
+      doc.text(`Contact: ${document.getElementById('custContact').value}`, 20, 50);
+      doc.text(`Address: ${document.getElementById('custAddress').value}`, 20, 60);
+
+      let startY = 80;
+      doc.text("Items:", 20, startY);
+      startY += 10;
+      const rows = document.querySelectorAll('#itemsTable tbody tr');
+      rows.forEach(row => {
+        const item = row.children[0].querySelector('input').value;
+        const qty = row.children[1].querySelector('input').value;
+        const rate = row.children[2].querySelector('input').value;
+        const tax = row.children[3].querySelector('input').value;
+        const amt = row.children[4].innerText;
+        doc.text(`${item} - Qty: ${qty}, Rate: ${rate}, Tax: ${tax}, Amount: ${amt}`, 20, startY);
+        startY += 10;
+      });
+
+      const discount = document.getElementById('discount').value;
+      const shipping = document.getElementById('shipping').value;
+      const total = document.getElementById('totalAmount').innerText;
+
+      startY += 10;
+      doc.text(`Discount: ₹${discount}`, 20, startY);
+      doc.text(`Shipping: ₹${shipping}`, 20, startY + 10);
+      doc.text(`Total: ₹${total}`, 20, startY + 20);
+
+      doc.save("invoice.pdf");
+    }
+  </script>
+</body>
+</html>

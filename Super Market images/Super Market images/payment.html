@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Completed - Vetri Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Raleway', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      text-align: center;
+    }
+    .order-image {
+      max-width: 300px;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      margin: 0.5rem 0;
+    }
+    p {
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+    .details-box {
+      background: #d5f5d5;
+      padding: 1.5rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .details-box div {
+      flex: 1;
+      min-width: 150px;
+    }
+    .details-box strong {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .download-btn, .nav-btn {
+      background: #f37c36;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      margin-top: 1rem;
+    }
+    .nav-links {
+      margin-top: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    @media (max-width: 600px) {
+      .details-box {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .details-box div {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <img src="thank you.png" alt="Order Completed" class="order-image" />
+  <h1>Your Order Completed</h1>
+  <p>Thank you. Your order has been received</p>
+  <div class="details-box">
+    <div>
+      <strong>Order ID</strong>
+      <span id="orderId">145</span>
+    </div>
+    <div>
+      <strong>Name</strong>
+      <span id="customerName">Keerthi</span>
+    </div>
+    <div>
+      <strong>Phone Number</strong>
+      <span id="phone">9100785489</span>
+    </div>
+    <div>
+      <strong>Email I'd</strong>
+      <span id="email">Keerthi156@gmail.com</span>
+    </div>
+    <div>
+      <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
+    </div>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="location.href='indexnew.html'">Back to Cart</button>
+    <button class="nav-btn" onclick="location.href='product.html'">Go to Products</button>
+    <button class="nav-btn" onclick="location.href='payment.html'">Payment Page</button>
+    <button class="nav-btn" onclick="location.href='invoice.html'">View Invoice</button>
+  </div>
+
+  <script>
+    function downloadInvoice() {
+      window.print();
+    }
+
+    // Load user data if available
+    window.onload = () => {
+      const customer = JSON.parse(localStorage.getItem("customerData"));
+      if (customer) {
+        document.getElementById("orderId").textContent = customer.orderId || "145";
+        document.getElementById("customerName").textContent = customer.name || "Keerthi";
+        document.getElementById("phone").textContent = customer.phone || "9100785489";
+        document.getElementById("email").textContent = customer.email || "Keerthi156@gmail.com";
+      }
+    }
+  </script>
+</body>
+</html>

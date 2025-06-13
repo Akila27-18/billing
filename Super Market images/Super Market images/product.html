@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vetri Market - Products</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Raleway', sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #fff;
+    }
+    .container {
+      display: flex;
+      min-height: 100vh;
+    }
+    a{
+        text-decoration: none;
+    }
+    .sidebar {
+      width: 220px;
+      background: #cde4fc;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+     
+    }
+    
+    .nav-item {
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: black;
+    }
+    .content {
+      flex: 1;
+      padding: 2rem;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    .table-header, .product-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin: 0.5rem 0;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+    .table-header {
+      font-weight: bold;
+      color: blue;
+      background: #f9f9f9;
+    }
+    .table-header span,
+    .product-row span {
+      flex: 1;
+      text-align: center;
+    }
+    .qty-controls {
+      display: flex;
+      gap: 0.25rem;
+      align-items: center;
+      justify-content: center;
+    }
+    .qty-btn, .cart-btn {
+      background: #f37c36;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .next-btn {
+      display: block;
+      margin: 2rem auto 0;
+      padding: 0.75rem 2rem;
+      background: #f37c36;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-around;
+      }
+      .product-row, .table-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .product-row span, .table-header span {
+        text-align: left;
+        margin-bottom: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar">
+        <a href="indexnew.html"><img src="logo.jpg" alt="Vetri Market Logo" style=" width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            margin-bottom: 1rem;"></a>
+        <div class="nav-item"><a href="product.html"><img src="products.png"> Products</a></div>
+    </div>
+    <div class="content">
+      <h2>Products</h2>
+      <div class="table-header">
+        <span>ITEM DETAILS</span>
+        <span>QUANTITY</span>
+        <span>RATE</span>
+        <span>TAX</span>
+        <span>AMOUNT</span>
+        <span><i class="fas fa-shopping-cart"></i></span>
+      </div>
+      <div id="product-list"></div>
+      <button class="next-btn" onclick="goToInvoicePage()">Next</button>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      { name: 'Dairy Milk', qty: 1, rate: 100, tax: 20 },
+      { name: 'Millet Noodles', qty: 1, rate: 30, tax: 10 },
+      { name: 'Wheat Flour', qty: 1, rate: 100, tax: 20 },
+      { name: 'Maida', qty: 1, rate: 30, tax: 10 },
+      { name: 'Chili Powder', qty: 1, rate: 100, tax: 20 },
+      { name: 'Biryani Masala', qty: 1, rate: 30, tax: 10 }
+    ];
+
+    const cart = [];
+    const productList = document.getElementById('product-list');
+
+    function updateProductRow(index) {
+      const product = products[index];
+      const amount = product.qty * product.rate + product.tax;
+      const row = document.getElementById(`product-${index}`);
+      row.innerHTML = `
+        <span>${product.name}</span>
+        <span>
+          <div class="qty-controls">
+            <button class="qty-btn" onclick="decrement(${index})"><i class="fas fa-minus"></i></button>
+            <span style="margin: 0 10px">${product.qty}</span>
+            <button class="qty-btn" onclick="increment(${index})"><i class="fas fa-plus"></i></button>
+          </div>
+        </span>
+        <span>${product.rate}</span>
+        <span>${product.tax}</span>
+        <span>${amount}</span>
+        <span>
+          <button class="cart-btn" onclick='addToCart(${index})'><i class="fas fa-shopping-cart"></i></button>
+        </span>
+      `;
+    }
+
+    function renderProducts() {
+      productList.innerHTML = '';
+      products.forEach((product, index) => {
+        const row = document.createElement('div');
+        row.className = 'product-row';
+        row.id = `product-${index}`;
+        productList.appendChild(row);
+        updateProductRow(index);
+      });
+    }
+
+    function addToCart(index) {
+      const item = { ...products[index], amount: products[index].qty * products[index].rate + products[index].tax };
+      cart.push(item);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert(`${item.name} added to cart.`);
+    }
+
+    function increment(index) {
+      products[index].qty++;
+      updateProductRow(index);
+    }
+
+    function decrement(index) {
+      if (products[index].qty > 1) {
+        products[index].qty--;
+        updateProductRow(index);
+      }
+    }
+
+    function goToInvoicePage() {
+      window.location.href = 'invoice.html';
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
